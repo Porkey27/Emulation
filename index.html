@@ -221,6 +221,8 @@
   const POLL_MS = 4000;
   const HEARTBEAT_MS = 5000;
   const ONLINE_WINDOW_MS = 45000;
+  const storageAvailable = (typeof window.storage !== 'undefined' && window.storage !== null
+    && typeof window.storage.get === 'function');
 
   let voiceOn = true;
   const voiceBtn = document.getElementById('voice-toggle');
@@ -258,6 +260,7 @@
   let me = { id: null, name: 'Trader', gold: 0 };
 
   async function loadIdentity(){
+    if (!storageAvailable) return null;
     try{
       const res = await window.storage.get('identity', false);
       if (res && res.value){
@@ -271,6 +274,7 @@
   async function saveIdentity(name){
     if (!me.id) me.id = uid();
     me.name = name;
+    if (!storageAvailable) return;
     try{
       await window.storage.set('identity', JSON.stringify({id: me.id, name}), false);
     }catch(e){ console.error('identity save failed', e); }
@@ -369,7 +373,7 @@
   let listings = []; // [{sellerId,sellerName,amount,price,createdAt}]
 
   async function heartbeat(){
-    if (!me.id) return;
+    if (!me.id || !storageAvailable) return;
     try{
       // absorb any gold credited to us by buyers since our last write
       const res = await window.storage.get('players:'+me.id, true).catch(()=>null);
@@ -382,6 +386,7 @@
   }
 
   async function pollOnlinePlayers(){
+    if (!storageAvailable) return;
     try{
       const listRes = await window.storage.list('players:', true);
       if (!listRes || !listRes.keys) return;
@@ -401,10 +406,12 @@
     }catch(e){ /* storage unavailable */ }
   }
 
+  let lastListingsError = null;
   async function pollListings(){
+    if (!storageAvailable){ lastListingsError = 'no-storage'; listings = []; return; }
     try{
       const listRes = await window.storage.list('listings:', true);
-      if (!listRes || !listRes.keys) { listings = []; return; }
+      if (!listRes || !listRes.keys) { listings = []; lastListingsError = null; return; }
       const results = [];
       for (const key of listRes.keys){
         try{
@@ -413,23 +420,33 @@
           const data = JSON.parse(r.value);
           if (!data.amount || data.amount<=0) continue;
           results.push(data);
-        }catch(e){}
+        }catch(e){ console.error('listing fetch failed for', key, e); }
       }
       listings = results;
-    }catch(e){ listings = []; }
+      lastListingsError = null;
+    }catch(e){
+      console.error('pollListings failed', e);
+      lastListingsError = e && e.message ? e.message : 'fetch-failed';
+      listings = [];
+    }
   }
 
   async function postListing(amount, unitPrice){
     if (!me.id) return;
+    if (!storageAvailable){
+      log('Listing not saved — shared trading is unavailable in this view (see Trade Post for details).', true);
+      player.inv = Math.min(MAX_INVENTORY, player.inv + amount); // refund since it never actually posted
+      return;
+    }
     const data = { sellerId: me.id, sellerName: me.name, amount, price: unitPrice, createdAt: Date.now() };
     try{
       await window.storage.set('listings:'+me.id, JSON.stringify(data), true);
       log(`You listed ${amount} copper at ${unitPrice}g each.`, true);
       await pollListings();
-    }catch(e){ log('Could not post listing — try again.', true); }
+    }catch(e){ console.error('postListing failed', e); log('Could not post listing — try again.', true); player.inv = Math.min(MAX_INVENTORY, player.inv + amount); }
   }
   async function cancelListing(){
-    if (!me.id) return;
+    if (!me.id || !storageAvailable) return;
     try{
       const r = await window.storage.get('listings:'+me.id, true).catch(()=>null);
       if (r && r.value){
@@ -447,6 +464,7 @@
     if (player.inv >= MAX_INVENTORY){ log('Your sack is full.', true); return; }
     const buyAmount = Math.min(listing.amount, MAX_INVENTORY - player.inv);
     const actualCost = Math.round(listing.price * buyAmount);
+    if (!storageAvailable){ log('Cannot complete trade — shared trading is unavailable in this view.', true); return; }
     me.gold -= actualCost;
     player.inv += buyAmount;
     try{
@@ -476,19 +494,48 @@
     const mine = listings.find(l => l.sellerId === me.id);
     cancelListingBtn.style.display = mine ? 'inline-block' : 'none';
     const others = listings.filter(l => l.sellerId !== me.id);
-    if (others.length === 0){
-      listingList.innerHTML = '<div class="empty-note">No other traders have copper listed right now. Check back soon, or list your own below.</div>';
-      return;
+
+    let html = '';
+
+    if (!storageAvailable){
+      html += `<div class="empty-note" style="color:#c1443b; border:1px solid #c1443b; padding:10px;">
+        Shared trading isn't available in this browser context — window.storage wasn't found.
+        This feature only works while the game is opened inside Claude's own artifact viewer
+        (the preview panel in the chat), not when the .html file is downloaded and opened directly
+        in a regular browser. Your own listing and gold also won't be saved right now.
+      </div>`;
+    } else if (lastListingsError){
+      html += `<div class="empty-note" style="color:#c1443b;">Couldn't load listings (${lastListingsError}). Try closing and reopening the Trade Post.</div>`;
     }
-    listingList.innerHTML = others.map((l,i) => `
-      <div class="listing-row" data-idx="${i}">
-        <div>
-          <div class="who">${l.sellerName}</div>
-          <div class="meta">${l.amount} copper &middot; ${l.price}g/unit &middot; ${Math.round(l.price*l.amount)}g total</div>
+
+    if (mine){
+      html += `
+        <div class="listing-row" style="border-color:#d9b34a;">
+          <div>
+            <div class="who">Your listing</div>
+            <div class="meta">${mine.amount} copper &middot; ${mine.price}g/unit &middot; ${Math.round(mine.price*mine.amount)}g total</div>
+          </div>
+          <div class="meta">Waiting for a buyer...</div>
+        </div>`;
+    }
+
+    if (others.length === 0){
+      if (storageAvailable && !lastListingsError){
+        html += '<div class="empty-note">No other traders have copper listed right now. Check back soon, or list your own below.</div>';
+      }
+    } else {
+      html += others.map((l,i) => `
+        <div class="listing-row" data-idx="${i}">
+          <div>
+            <div class="who">${l.sellerName}</div>
+            <div class="meta">${l.amount} copper &middot; ${l.price}g/unit &middot; ${Math.round(l.price*l.amount)}g total</div>
+          </div>
+          <button data-idx="${i}">BUY</button>
         </div>
-        <button data-idx="${i}">BUY</button>
-      </div>
-    `).join('');
+      `).join('');
+    }
+
+    listingList.innerHTML = html;
     listingList.querySelectorAll('button[data-idx]').forEach(btn => {
       btn.addEventListener('click', () => {
         const l = others[parseInt(btn.dataset.idx)];
@@ -749,6 +796,7 @@
     player.inv = 0; player.mineProgress = 0;
     logLines.length = 0;
     log('The claim is open. Good luck out there.', false);
+    if (!storageAvailable) log('⚠ Shared trading unavailable in this view — see Trade Post for details.', false);
     await pullSharedPrice();
     await pollOnlinePlayers();
     await pollListings();
