@@ -8,6 +8,18 @@
             body, html {
                 margin: 0;
                 padding: 0;
+                height: 100%;
+            }
+            .game-wrapper {
+                position: absolute;
+                top: 44px;      /* height of the .nav bar — adjust to match */
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }
+            #game {
+                width: 100%;
+                height: 100%;
             }
         </style>
     </head>
@@ -17,7 +29,7 @@
             <li><a href="/Emulation/Systems.html">Systems</a></li>
         </ul>
 
-        <div style="width:100%;height:100%;max-width:100%">
+        <div class="game-wrapper">
             <div id="game"></div>
         </div>
         <script>
