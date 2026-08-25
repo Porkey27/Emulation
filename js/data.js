@@ -28,6 +28,8 @@ const SYSTEMS = [
     accent: "#39ff88",
     image: "",
     games: [
+      { title: "Banjo Kazooie", image: "", rom: "BanjoKazooie.z64" },
+      { title: "Golden Eye 007", image: "", rom: "GoldenEye007.z64" },
       { title: "Super Mario 64", image: "", rom: "SM64.z64" },
     ],
   },
