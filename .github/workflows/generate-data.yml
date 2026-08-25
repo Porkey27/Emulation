@@ -1,0 +1,29 @@
+name: Generate ROM data
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ROMS/**"
+      - "tools/generate.js"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node tools/generate.js
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: regenerate js/data.js from ROMS/"
+          file_pattern: js/data.js
