@@ -3,38 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Systems</title>
+  <title>Home — Frontend</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <nav class="topbar">
     <div class="tabs">
-      <a class="tab" href="index.html">Home</a>
-      <a class="tab active" href="systems.html">Systems</a>
+      <a class="tab active" href="index.html">Home</a>
+      <a class="tab" href="systems.html">Systems</a>
     </div>
   </nav>
 
   <main class="page">
     <div class="page-head">
-      <h1>SYSTEMS</h1>
-      <span class="count-pill" id="count"></span>
+      <h1>&gt; <span class="accent">READY</span></h1>
     </div>
-    <div class="grid" id="grid"></div>
+    <p style="color: var(--dim); font-size: 13px; max-width: 60ch; line-height: 1.7;">
+      Pick <a href="systems.html" style="color: var(--accent);">Systems</a> to browse consoles.
+      Each console opens a library of games in the same grid.
+    </p>
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/render.js"></script>
-  <script>
-    const items = SYSTEMS.map((s) => ({
-      title: s.short,
-      image: s.image,
-      sub: s.emulator,
-      accent: s.accent,
-      href: `console.html?system=${encodeURIComponent(s.id)}`,
-    }));
-
-    document.getElementById("count").textContent = `${items.length} SYSTEMS`;
-    renderGrid(document.getElementById("grid"), items);
-  </script>
 </body>
 </html>
