@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emulation</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    .game-wrapper {
+      position: relative;
+      flex: 1 1 auto;
+    }
+    #game {
+      position: absolute;
+      inset: 0;
+    }
+    .player-error {
+      max-width: 60ch;
+      margin: 60px auto;
+      padding: 24px;
+      text-align: center;
+      color: var(--dim);
+      font-size: 13px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+    }
+    .player-error a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="tabs">
+      <a class="tab" href="/index.html">Home</a>
+      <a class="tab" href="/systems.html">Systems</a>
+    </div>
+  </nav>
+
+  <div class="game-wrapper">
+    <div id="game"></div>
+  </div>
+
+  <script src="/js/data.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const systemId = params.get("system");
+    const romFile = params.get("rom");
+    const system = getSystem(systemId);
+    const game = system && system.games.find((g) => g.rom === romFile);
+
+    if (!system || !game) {
+      document.getElementById("game").outerHTML = `
+        <div class="player-error">
+          GAME NOT FOUND<br /><br />
+          <a href="/systems.html">Back to Systems</a>
+        </div>
+      `;
+    } else {
+      document.title = `${game.title} — Emulation`;
+
+      window.EJS_player = "#game";
+      window.EJS_core = system.core;
+      window.EJS_gameName = romFile.replace(/\.[^.]+$/, "");
+      window.EJS_color = system.accent;
+      window.EJS_startOnLoaded = true;
+      window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+      window.EJS_gameUrl = `/ROMS/${systemId}/${romFile}`;
+
+      const loader = document.createElement("script");
+      loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+      document.body.appendChild(loader);
+    }
+  </script>
+</body>
+</html>
