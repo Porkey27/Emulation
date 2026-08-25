@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Console — Games</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="topbar">
+    <div class="tabs">
+      <a class="tab" href="index.html">Home</a>
+      <a class="tab active" href="systems.html">Systems</a>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <div class="breadcrumb"><a href="systems.html">SYSTEMS</a> / <span id="sysName"></span></div>
+        <h1 id="title" style="margin-top: 8px;"></h1>
+      </div>
+      <span class="count-pill" id="count"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/render.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const system = getSystem(params.get("system"));
+    const grid = document.getElementById("grid");
+
+    if (!system) {
+      document.getElementById("title").textContent = "SYSTEM NOT FOUND";
+      document.getElementById("sysName").textContent = "?";
+      renderGrid(grid, []);
+    } else {
+      document.title = `${system.name} — Games`;
+      document.getElementById("sysName").textContent = system.short.toUpperCase();
+      document.getElementById("title").innerHTML =
+        `<span class="accent" style="color:${system.accent}">${system.short}</span> GAMES`;
+
+      const items = system.games.map((g) => ({
+        title: g.title,
+        image: g.image,
+        sub: g.emulator || system.emulator,
+        accent: system.accent,
+        // wire this up to your actual launch mechanism (native app link, local
+        // server endpoint, etc.) — currently just a placeholder anchor
+        href: `#launch=${encodeURIComponent(system.id)}:${encodeURIComponent(g.title)}`,
+      }));
+
+      document.getElementById("count").textContent = `${items.length} GAMES`;
+      renderGrid(grid, items);
+    }
+  </script>
+</body>
+</html>
