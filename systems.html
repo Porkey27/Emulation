@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-72C4C5JMJK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-72C4C5JMJK');
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Systems</title>
@@ -22,19 +30,21 @@
     <div class="grid" id="grid"></div>
   </main>
 
-  <script src="js/data.js"></script>
+  <script src="js/nas-config.js"></script>
   <script src="js/renderer.js"></script>
   <script>
-    const items = SYSTEMS.map((s) => ({
-      title: s.short,
-      image: s.image,
-      sub: s.emulator,
-      accent: s.accent,
-      href: `console.html?system=${encodeURIComponent(s.id)}`,
-    }));
+    loadNasData(() => {
+      const items = SYSTEMS.map((s) => ({
+        title: s.short,
+        image: s.image,
+        sub: s.emulator,
+        accent: s.accent,
+        href: `console.html?system=${encodeURIComponent(s.id)}`,
+      }));
 
-    document.getElementById("count").textContent = `${items.length} SYSTEMS`;
-    renderGrid(document.getElementById("grid"), items);
+      document.getElementById("count").textContent = `${items.length} SYSTEMS`;
+      renderGrid(document.getElementById("grid"), items);
+    });
   </script>
 </body>
 </html>

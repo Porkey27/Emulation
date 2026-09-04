@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-72C4C5JMJK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-72C4C5JMJK');
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Console — Games</title>
@@ -25,34 +33,36 @@
     <div class="grid" id="grid"></div>
   </main>
 
-  <script src="js/data.js"></script>
+  <script src="js/nas-config.js"></script>
   <script src="js/renderer.js"></script>
   <script>
-    const params = new URLSearchParams(location.search);
-    const system = getSystem(params.get("system"));
-    const grid = document.getElementById("grid");
+    loadNasData(() => {
+      const params = new URLSearchParams(location.search);
+      const system = getSystem(params.get("system"));
+      const grid = document.getElementById("grid");
 
-    if (!system) {
-      document.getElementById("title").textContent = "SYSTEM NOT FOUND";
-      document.getElementById("sysName").textContent = "?";
-      renderGrid(grid, []);
-    } else {
-      document.title = `${system.name} — Games`;
-      document.getElementById("sysName").textContent = system.short.toUpperCase();
-      document.getElementById("title").innerHTML =
-        `<span class="accent" style="color:${system.accent}">${system.short}</span> GAMES`;
+      if (!system) {
+        document.getElementById("title").textContent = "SYSTEM NOT FOUND";
+        document.getElementById("sysName").textContent = "?";
+        renderGrid(grid, []);
+      } else {
+        document.title = `${system.name} — Games`;
+        document.getElementById("sysName").textContent = system.short.toUpperCase();
+        document.getElementById("title").innerHTML =
+          `<span class="accent" style="color:${system.accent}">${system.short}</span> GAMES`;
 
-      const items = system.games.map((g) => ({
-        title: g.title,
-        image: g.image,
-        sub: system.emulator,
-        accent: system.accent,
-        href: `/player.html?system=${encodeURIComponent(system.id)}&rom=${encodeURIComponent(g.rom)}`,
-      }));
+        const items = system.games.map((g) => ({
+          title: g.title,
+          image: g.image,
+          sub: system.emulator,
+          accent: system.accent,
+          href: `/player.html?system=${encodeURIComponent(system.id)}&rom=${encodeURIComponent(g.rom)}`,
+        }));
 
-      document.getElementById("count").textContent = `${items.length} GAMES`;
-      renderGrid(grid, items);
-    }
+        document.getElementById("count").textContent = `${items.length} GAMES`;
+        renderGrid(grid, items);
+      }
+    });
   </script>
 </body>
 </html>

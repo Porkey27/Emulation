@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-72C4C5JMJK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-72C4C5JMJK');
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emulation</title>
@@ -48,36 +56,40 @@
     <div id="game"></div>
   </div>
 
-  <script src="/js/data.js"></script>
+  <script src="/js/nas-config.js"></script>
   <script>
-    const params = new URLSearchParams(location.search);
-    const systemId = params.get("system");
-    const romFile = params.get("rom");
-    const system = getSystem(systemId);
-    const game = system && system.games.find((g) => g.rom === romFile);
+    loadNasData(() => {
+      const params = new URLSearchParams(location.search);
+      const systemId = params.get("system");
+      const romFile = params.get("rom");
+      const system = getSystem(systemId);
+      const game = system && system.games.find((g) => g.rom === romFile);
 
-    if (!system || !game) {
-      document.getElementById("game").outerHTML = `
-        <div class="player-error">
-          GAME NOT FOUND<br /><br />
-          <a href="/systems.html">Back to Systems</a>
-        </div>
-      `;
-    } else {
-      document.title = `${game.title} — Emulation`;
+      if (!system || !game) {
+        document.getElementById("game").outerHTML = `
+          <div class="player-error">
+            GAME NOT FOUND<br /><br />
+            <a href="/systems.html">Back to Systems</a>
+          </div>
+        `;
+      } else {
+        document.title = `${game.title} — Emulation`;
 
-      window.EJS_player = "#game";
-      window.EJS_core = system.core;
-      window.EJS_gameName = romFile.replace(/\.[^.]+$/, "");
-      window.EJS_color = system.accent;
-      window.EJS_startOnLoaded = true;
-      window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-      window.EJS_gameUrl = `/ROMS/${systemId}/${romFile}`;
+        window.EJS_player = "#game";
+        window.EJS_core = system.core;
+        window.EJS_gameName = romFile.replace(/\.[^.]+$/, "");
+        window.EJS_color = system.accent;
+        window.EJS_startOnLoaded = true;
+        window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+        window.EJS_gameUrl =
+          `${window.NAS_CONFIG.baseUrl}/ROMS/${encodeURIComponent(systemId)}/${encodeURIComponent(romFile)}` +
+          `?key=${encodeURIComponent(window.NAS_CONFIG.key)}`;
 
-      const loader = document.createElement("script");
-      loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
-      document.body.appendChild(loader);
-    }
+        const loader = document.createElement("script");
+        loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+        document.body.appendChild(loader);
+      }
+    });
   </script>
 </body>
 </html>
