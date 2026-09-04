@@ -82,7 +82,7 @@
         window.EJS_startOnLoaded = true;
         window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
         window.EJS_gameUrl =
-          `${window.NAS_CONFIG.baseUrl}/ROMS/${encodeURIComponent(systemId)}/${encodeURIComponent(romFile)}` +
+          `${window.NAS_CONFIG.baseUrl}/ROMS/${encodeURIComponent(system.folder)}/${encodeURIComponent(romFile)}` +
           `?key=${encodeURIComponent(window.NAS_CONFIG.key)}`;
 
         const loader = document.createElement("script");
