@@ -85,6 +85,22 @@
           `${window.NAS_CONFIG.baseUrl}/ROMS/${encodeURIComponent(system.folder)}/${encodeURIComponent(romFile)}` +
           `?key=${encodeURIComponent(window.NAS_CONFIG.key)}`;
 
+        // A handful of cores need a BIOS file to boot at all (PS1, Sega
+        // CD, Saturn, 3DO) — served from a "BIOS" folder on the NAS,
+        // alongside the system folders. See NAS_CONFIG.bios in
+        // nas-config.js for which filename is used per core.
+        const biosFile = window.NAS_CONFIG.bios && window.NAS_CONFIG.bios[system.core];
+        if (biosFile) {
+          window.EJS_biosUrl =
+            `${window.NAS_CONFIG.baseUrl}/ROMS/BIOS/${encodeURIComponent(biosFile)}` +
+            `?key=${encodeURIComponent(window.NAS_CONFIG.key)}`;
+        }
+
+        // 3DS (azahar core) requires threads to function at all.
+        if (system.core === "3ds" || system.core === "azahar") {
+          window.EJS_threads = true;
+        }
+
         const loader = document.createElement("script");
         loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
         document.body.appendChild(loader);

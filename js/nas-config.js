@@ -1,7 +1,19 @@
 // Points the frontend at your NAS API instead of the bundled js/data.js.
 window.NAS_CONFIG = {
   baseUrl: "https://nas.weenids.co.uk", // your Cloudflare Tunnel hostname
-  key: "ffa152f3b5f1918f9129f5aaa7a2a8764a75b255b2e9b081", // must match NAS_ACCESS_KEY on the server
+  key: "change-me-to-a-long-random-string", // must match NAS_ACCESS_KEY on the server
+  // Which BIOS file (inside a "BIOS" folder on the NAS, alongside your
+  // system folders) to use for each core that requires one. Only these
+  // four cores need a BIOS at all — everything else is left out on
+  // purpose. Filenames must match EmulatorJS's exact expected names (see
+  // "BIOS files" in the README) — these are just the placeholders/most
+  // common region; change them if your discs are a different region.
+  bios: {
+    psx: "scph5501.bin", // US PS1 BIOS — use scph5500.bin (JP) or scph5502.bin (EU) if that's your region
+    segaCD: "bios_CD_U.bin", // US Sega CD BIOS — bios_CD_E.bin (EU) / bios_CD_J.bin (JP)
+    segaSaturn: "saturn_bios.bin", // single BIOS, no region variants
+    "3do": "panafz10.bin", // pick whichever 3DO BIOS variant you actually have
+  },
 };
 
 // Loads <baseUrl>/data.js from the NAS (which defines SYSTEMS + getSystem(),
