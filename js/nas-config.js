@@ -25,6 +25,7 @@ function loadNasData(then) {
   s.onload = then;
   s.onerror = () => {
     console.error("Could not reach NAS games API at", cfg.baseUrl);
+    window.NAS_LOAD_FAILED = true;
     // Fallback stubs so pages that expect SYSTEMS/getSystem() degrade to an
     // empty-state render instead of throwing a ReferenceError.
     if (typeof window.SYSTEMS === "undefined") window.SYSTEMS = [];

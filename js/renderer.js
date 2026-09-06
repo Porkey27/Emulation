@@ -11,7 +11,13 @@ function renderGrid(container, items) {
   if (!items.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.textContent = "NO ENTRIES YET";
+    // window.NAS_LOAD_FAILED is set by nas-config.js if data.js couldn't be
+    // fetched at all (DNS lag, the NAS being offline, etc.) — that's a
+    // different situation from a system/console genuinely having no
+    // games, and visitors deserve to know which one they're looking at.
+    empty.textContent = window.NAS_LOAD_FAILED
+      ? "COULD NOT REACH THE NAS — TRY AGAIN IN A FEW MINUTES"
+      : "NO ENTRIES YET";
     container.appendChild(empty);
     return;
   }
