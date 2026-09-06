@@ -1,7 +1,7 @@
 // Points the frontend at your NAS API instead of the bundled js/data.js.
 window.NAS_CONFIG = {
   baseUrl: "https://nas.weenids.co.uk", // your Cloudflare Tunnel hostname
-  key: "change-me-to-a-long-random-string", // must match NAS_ACCESS_KEY on the server
+  key: "ffa152f3b5f1918f9129f5aaa7a2a8764a75b255b2e9b081", // must match NAS_ACCESS_KEY on the server
   // Which BIOS file (inside a "BIOS" folder on the NAS, alongside your
   // system folders) to use for each core that requires one. Only these
   // four cores need a BIOS at all — everything else is left out on
