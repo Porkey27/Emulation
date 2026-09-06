@@ -2,7 +2,7 @@
 
 ## Adding a game
 
-1. Open an issue and if apporved it will be added
+Open an issue and if apporved it will be added
 
 ## Files
 
