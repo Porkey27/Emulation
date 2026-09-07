@@ -101,6 +101,25 @@
           window.EJS_threads = true;
         }
 
+        // RetroPad (which every EmulatorJS core follows) names face buttons
+        // by SNES-style position (right=A, bottom=B, top=X, left=Y) — the
+        // exact mirror of Xbox-style naming (bottom=A, right=B, top=Y,
+        // left=X) on both pairs. Swaps both the keyboard key ("value") and
+        // the controller mapping ("value2" — this is what actually matters
+        // for a physical gamepad; "value" alone only affects keyboard) so
+        // pressing what you'd expect for A/B/X/Y on an Xbox-style layout
+        // does what you'd expect, on keyboard or controller. Applies to
+        // every system, not just PS1 — this default naming is the same
+        // across every core, so the same "flip" shows up everywhere.
+        window.EJS_defaultControls = {
+          0: {
+            0: { value: "z", value2: "BUTTON_1" }, // B slot: was x/BUTTON_2
+            1: { value: "a", value2: "BUTTON_3" }, // Y slot: was s/BUTTON_4
+            8: { value: "x", value2: "BUTTON_2" }, // A slot: was z/BUTTON_1
+            9: { value: "s", value2: "BUTTON_4" }, // X slot: was a/BUTTON_3
+          },
+        };
+
         const loader = document.createElement("script");
         loader.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
         document.body.appendChild(loader);
